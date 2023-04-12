@@ -21,10 +21,12 @@ import { Divider } from "@mui/material";
 import axios from "axios";
 import RecordRTC, { invokeSaveAsDialog } from "recordrtc";
 import { useParams } from "react-router-dom";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import html2pdf from 'html2pdf.js';
-import aiishPic from "../images/AIISH_LoGO.jpeg";
+import aiishPic from "../images/logo.png";
+import { useReactToPrint } from 'react-to-print';
+import "./style.css";
 
 export default function ViewTest() {
   const { id } = useParams();
@@ -50,24 +52,32 @@ export default function ViewTest() {
   const printDocument = () => {
     const input = document.getElementById('divToPrint');
     const opt = {
-      // margin: 3,
+      margin: 1,
       filename: 'test_report.pdf',
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2.5 },
       pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
       jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+
+
     };
 
-    // New Promise-based usage:
-    html2pdf()
-      .set(opt)
-      .setMargin(3)
-      .from(input)
-      .save();
+    // // New Promise-based usage:
+    // html2pdf()
+    //   .set(opt)
+    //   .from(input)
+    //   .save();
 
     // Old monolithic-style usage:
     // html2pdf(input, opt);
   };
+
+    const componentRef = React.useRef();
+    const handlePrint = useReactToPrint({
+      content: () => componentRef.current,
+      documentTitle: 'Report',
+      pageStyle: '@page { margin: 20px; }',
+    });
 
   return (
     <Container component="main" maxWidth="s">
@@ -79,145 +89,156 @@ export default function ViewTest() {
           </Typography>
         </div>
       ) : (
-        <div>
+        <>
+        <div >
           <br />
-          <div id="divToPrint">
+          <div ref={componentRef} style={{width: '100%'}}>
             <div style={{ display: 'flex', flex: 1, alignItems: "center", justifyContent: 'center' }}>
               <img src={aiishPic} alt="AIISH Logo" width={150}></img>
             </div>
-            <br/>
-            <br/>
+            <br />
+            <br />
             <Typography variant="h5">
               <span style={{ fontWeight: 'bold' }}>Demographic Details</span>
             </Typography>
-          <br/>
+            <br />
 
-            <Box
-              sx={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)" }}
-            >
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
               <Typography variant="body1">
-                <span style={{ fontWeight: "bold" }}>Case Number</span>
+                <span style={{ fontWeight: 'bold' }}>Case Number</span>
               </Typography>
-              <Typography variant="body1"> : {test.case_number}</Typography>
+              <Typography variant="body1">
+                : {test.case_number}
+              </Typography>
             </Box>
 
-            <Box
-              sx={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)" }}
-            >
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
               <Typography variant="body1">
-                <span style={{ fontWeight: "bold" }}>Case Name</span>
+                <span style={{ fontWeight: 'bold' }}>Case Name</span>
               </Typography>
-              <Typography variant="body1"> : {test.case_name}</Typography>
+              <Typography variant="body1">
+                : {test.case_name}
+              </Typography>
             </Box>
 
-            <Box
-              sx={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)" }}
-            >
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
               <Typography variant="body1">
-                <span style={{ fontWeight: "bold" }}>Age</span>
+                <span style={{ fontWeight: 'bold' }}>Age</span>
               </Typography>
-              <Typography variant="body1"> : {test.age}</Typography>
+              <Typography variant="body1">
+                : {test.age} years
+              </Typography>
             </Box>
 
-            <Box
-              sx={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)" }}
-            >
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
               <Typography variant="body1">
-                <span style={{ fontWeight: "bold" }}>Contact Number</span>
+                <span style={{ fontWeight: 'bold' }}>Contact Number</span>
               </Typography>
-              <Typography variant="body1"> : {test.contact_number}</Typography>
+              <Typography variant="body1">
+                : {test.contact_number}
+              </Typography>
             </Box>
 
-            <Box
-              sx={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)" }}
-            >
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
               <Typography variant="body1">
-                <span style={{ fontWeight: "bold" }}>Email</span>
+                <span style={{ fontWeight: 'bold' }}>Email</span>
               </Typography>
-              <Typography variant="body1"> : {test.email}</Typography>
+              <Typography variant="body1">
+                : {test.email}
+              </Typography>
             </Box>
 
-            <Box
-              sx={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)" }}
-            >
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
               <Typography variant="body1">
-                <span style={{ fontWeight: "bold" }}>Family History</span>
+                <span style={{ fontWeight: 'bold' }}>Occupation</span>
               </Typography>
-              <Typography variant="body1"> : {test.family_history}</Typography>
+              <Typography variant="body1">
+                : {test.occupation}
+              </Typography>
             </Box>
 
-            <Box
-              sx={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)" }}
-            >
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
               <Typography variant="body1">
-                <span style={{ fontWeight: "bold" }}>Model</span>
+                <span style={{ fontWeight: 'bold' }}>Education</span>
               </Typography>
-              <Typography variant="body1"> : {test.model_type}</Typography>
+              <Typography variant="body1">
+                : {test.education}
+              </Typography>
+            </Box>
+            
+
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
+              <Typography variant="body1">
+                <span style={{ fontWeight: 'bold' }}>Address</span>
+              </Typography>
+              <Typography variant="body1">
+                : {test.address}
+              </Typography>
             </Box>
 
-            <Box
-              sx={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)" }}
-            >
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
               <Typography variant="body1">
-                <span style={{ fontWeight: "bold" }}>Occupation</span>
+                <span style={{ fontWeight: 'bold' }}>Duration</span>
               </Typography>
-              <Typography variant="body1"> : {test.occupation}</Typography>
+              <Typography variant="body1">
+                : {test.duration} Months
+              </Typography>
             </Box>
 
-            <Box
-              sx={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)" }}
-            >
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
               <Typography variant="body1">
-                <span style={{ fontWeight: "bold" }}>Education</span>
+                <span style={{ fontWeight: 'bold' }}>Nature</span>
               </Typography>
-              <Typography variant="body1"> : {test.education}</Typography>
+              <Typography variant="body1">
+                : {test.nature}
+              </Typography>
             </Box>
 
-            <Box
-              sx={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)" }}
-            >
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
               <Typography variant="body1">
-                <span style={{ fontWeight: "bold" }}>Address</span>
+                <span style={{ fontWeight: 'bold' }}>Percentage of disfluencies in Spontaneous speech</span>
               </Typography>
-              <Typography variant="body1"> : {test.address}</Typography>
+              <Typography variant="body1">
+                : -
+              </Typography>
             </Box>
 
-            <Box
-              sx={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)" }}
-            >
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
               <Typography variant="body1">
-                <span style={{ fontWeight: "bold" }}>Duration</span>
+                <span style={{ fontWeight: 'bold' }}>Percentage of disfluencies in Reading</span>
               </Typography>
-              <Typography variant="body1"> : {test.duration}</Typography>
+              <Typography variant="body1">
+                : -
+              </Typography>
             </Box>
 
-            <Box
-              sx={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)" }}
-            >
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
               <Typography variant="body1">
-                <span style={{ fontWeight: "bold" }}>Nature</span>
+                <span style={{ fontWeight: 'bold' }}>Overall percentage of disfluencies</span>
               </Typography>
-              <Typography variant="body1"> : {test.nature}</Typography>
+              <Typography variant="body1">
+                : -
+              </Typography>
             </Box>
 
-            {/* <Box
-              sx={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)" }}
-            >
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
               <Typography variant="body1">
-                <span style={{ fontWeight: "bold" }}>Total Score</span>
+                <span style={{ fontWeight: 'bold' }}>Total number of syllables uttered</span>
               </Typography>
-              <Typography variant="body1"> : {test.total_score}</Typography>
-            </Box> */}
-
-            <Box
-              sx={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)" }}
-            >
               <Typography variant="body1">
-                <span style={{ fontWeight: "bold" }}>Doctor Email</span>
+                : {test.total_score ?? "-"}
               </Typography>
-              <Typography variant="body1"> : {test.doctor}</Typography>
             </Box>
 
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
+              <Typography variant="body1">
+                <span style={{ fontWeight: 'bold' }}>Doctor Email</span>
+              </Typography>
+              <Typography variant="body1">
+                : {test.doctor}
+              </Typography>
+            </Box>
+            <div className="pagebreak"></div>
             <Box>
               <br />
               <Divider />
@@ -226,12 +247,26 @@ export default function ViewTest() {
               <DisplayPassages passages={test.passages} />
             </Box>
           </div>
-          <Grid item xs={8}>
-            <Button variant="contained" color="primary" onClick={printDocument}>
-              Download Report
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            minHeight="8vh"
+          >
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handlePrint}
+            >
+              <Grid container direction="row" spacing={1} alignItems={'center'} justify={'center'} style={{ width: "100%" }}>
+                <Grid item>
+                  Download Report
+                </Grid>
+              </Grid>
             </Button>
-          </Grid>
+          </Box>
         </div>
+        </>
       )}
     </Container>
   );
@@ -242,7 +277,7 @@ const DisplayQuestions = ({ questions }) => {
     <div>
       <Typography component="h1" variant="h5">
         {" "}
-        <span style={{ fontWeight: "bold" }}>Questions</span>{" "}
+        <span style={{ fontWeight: 'bold' }}>Questions</span>{" "}
       </Typography>
 
       {questions.map((question, index) => {
@@ -303,7 +338,7 @@ const DisplayPassages = ({ passages }) => {
     <div>
       <Typography component="h1" variant="h5">
         {" "}
-        <span style={{ fontWeight: "bold" }}>Passages</span>{" "}
+        <span style={{ fontWeight: 'bold' }}>Passages</span>{" "}
       </Typography>
       {passages.map((passage, index) => {
         return (

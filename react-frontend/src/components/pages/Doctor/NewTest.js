@@ -160,6 +160,7 @@ export default function NewTest() {
       // if conflict, notify user
       // TODO: unable to catch the error in axios
       .catch(function (err) {
+        setIsLoading(false);
         console.log("err", err);
         if (err.response.status === 409) {
           notify("Test with same number already exists", "error");
