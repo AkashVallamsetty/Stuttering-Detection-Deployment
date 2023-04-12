@@ -148,6 +148,24 @@ export default function ViewTest() {
               </Typography>
             </Box>
 
+            <Box
+              sx={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)" }}
+            >
+              <Typography variant="body1">
+                <span style={{ fontWeight: "bold" }}>Family History</span>
+              </Typography>
+              <Typography variant="body1"> : {test.family_history}</Typography>
+            </Box>
+
+            <Box
+              sx={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)" }}
+            >
+              <Typography variant="body1">
+                <span style={{ fontWeight: "bold" }}>Model</span>
+              </Typography>
+              <Typography variant="body1"> : {test.model_type}</Typography>
+            </Box>
+            
             <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
               <Typography variant="body1">
                 <span style={{ fontWeight: 'bold' }}>Occupation</span>
