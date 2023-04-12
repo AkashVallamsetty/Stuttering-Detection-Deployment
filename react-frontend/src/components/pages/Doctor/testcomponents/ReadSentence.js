@@ -70,6 +70,7 @@ export default function ReadSentence({
             text: newQuestion.question,
             src: "",
             id: newQuestion._id.$oid,
+            bound: newQuestion.bound,
           };
           addQuestion(question);
         }

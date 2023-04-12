@@ -69,6 +69,7 @@ export default function ReadPassage({
           text: newPassage.passage,
           src: "",
           id: newPassage._id.$oid,
+          bound: newPassage.bound,
         };
         addPassage(passage);
         // setPassages([...current_passages, passage]);
