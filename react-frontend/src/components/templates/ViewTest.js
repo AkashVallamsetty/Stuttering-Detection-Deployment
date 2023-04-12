@@ -277,9 +277,9 @@ const DisplayQuestion = ({ question }) => {
         <source src={question.source} type="audio/webm" controls />
       </audio>
 
-      <Typography variant="body2">
+      {/* <Typography variant="body2">
         <p style={{ fontWeight: "bold" }}>Actual boundaries : {question.bound} </p>
-      </Typography>
+      </Typography> */}
       <Typography variant="body2">
         <p style={{ fontWeight: "bold" }}>Prolongation : {score[0]} </p>
       </Typography>
@@ -287,7 +287,7 @@ const DisplayQuestion = ({ question }) => {
         <p style={{ fontWeight: "bold" }}>Repetition : {score[1]} </p>
       </Typography>
       <Typography variant="body2">
-        <p style={{ fontWeight: "bold" }}>Predicted boundaries : {score[2]} </p>
+        <p style={{ fontWeight: "bold" }}>blocking : {score[2]} </p>
       </Typography>
 
 	  <br/>
