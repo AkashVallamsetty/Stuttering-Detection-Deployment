@@ -64,6 +64,7 @@ export default function NewTest() {
   };
 
   const submitTest = async () => {
+    setIsLoading(true);
     // TODO:
     // verify demographic data
     // remove unfinished questions/passages
@@ -141,7 +142,7 @@ export default function NewTest() {
     // for (let [key, value] of formdata.entries()) {
     //   console.log(key, value);
     // }
-    setIsLoading(true);
+    
     axios
     .post("/api/newtest", formdata, {
         headers: {
