@@ -20,7 +20,7 @@ import axios from "axios";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import PropTypes from "prop-types";
-import { Card,CardContent } from "@mui/material";
+import { Card,CardContent,Tooltip } from "@mui/material";
 // import Typography from '@mui/material/Typography';
 import Box from "@mui/material/Box";
 import EditIcon from "@mui/icons-material/Edit";
@@ -75,7 +75,7 @@ export function Home() {
   useEffect(() => {
     if (!localStorage.getItem("user")) window.location.href = "/";
     const user = JSON.parse(localStorage.getItem("user"));
-    if (user.usertype !== 0 || user.usertype === 1) window.location.href = "/";
+    if (user.usertype !== 0) window.location.href = "/";
     setUser(user);
     console.log("user", user);
   }, []);
@@ -139,7 +139,9 @@ export function DoctorsList() {
   return (
     <Container component="main" maxWidth="lg">
       {doctors.map((test) => (
+        <div key={test.id} onClick={() => window.location.href = `/user/${test.id}`} style={{ cursor: "pointer" }}>
         <UserCard key={test.id} test={test} />
+        </div>
       ))}
     </Container>
   );
@@ -178,9 +180,8 @@ export function PatientsList() {
     <Container component="main" maxWidth="lg">
       {/* <div> */}
       {patients.map((test) => (
-        <div>
+        <div key={test.id} onClick={() => window.location.href = `/user/${test.id}`} style={{ cursor: "pointer" }}>
           <UserCard key={test.id} test={test}  />
-          <div id="butt"></div>
         </div>
       ))}
     </Container>
@@ -193,12 +194,14 @@ const UserCard = ({ test }) => {
   const [open2, setOpen2] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleOpen2 = () => setOpen2(true);
+
   const handleClose = () => {
     setOpen(false);
   };
   const handleClose2 = () => {
     setOpen2(false);
   };
+
   const [textInput, setTextInput] = useState("");
   const [textInput2, setTextInput2] = useState("");
 
@@ -267,6 +270,29 @@ const UserCard = ({ test }) => {
         console.log(err);
       });
   }
+  function delete_user(email) {
+    const article = JSON.stringify({
+      email: email,
+    });
+    const headers = {
+      Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+      "Access-Control-Allow-Origin": "*",
+      "Content-Type": "application/json",
+    };
+    axios("http://localhost:5000/doctors/delete", {
+      method: "POST",
+      data: article,
+      headers: headers,
+    })
+      .then((res) => {
+        window.location.reload();
+        console.log("success");
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+  
 
   return ( 
     <Card sx={{marginTop:2,display:"flex",flexDirection:"row",alignItems:"center",padding:"1rem",boxShadow:"0px 4px 10px rgba(0, 0, 0, 0.5)",borderRadius:"10px"}} >
@@ -274,22 +300,43 @@ const UserCard = ({ test }) => {
   <Grid item xs={6}>
     <Typography variant="h5" component="h2" textAlign="center" >
       {test.username}
-      <IconButton size="small" onClick={handleOpen} sx={{ bgcolor: "#e0e0e0", ml: "0.5rem" }}>
+      <Tooltip title="Edit Username">
+      <IconButton size="small" onClick={(event) => { event.stopPropagation(); handleOpen(); }}  sx={{ bgcolor: "#e0e0e0", ml: "0.5rem" }}>
         <EditIcon sx={{ color: "blue" }} />
       </IconButton>
+      </Tooltip>
     </Typography>
   </Grid>
   <Grid item xs={5}>
     <Typography variant="body" component="p" textAlign="center">
       {test.email}
-      <IconButton size="small" onClick={handleOpen2} sx={{ bgcolor: "#e0e0e0", ml: "0.5rem" }}>
+      <Tooltip title="Edit Email">
+      <IconButton size="small" onClick={(event) => { event.stopPropagation(); handleOpen2(); }} sx={{ bgcolor: "#e0e0e0", ml: "0.5rem" }}>
         <EditIcon sx={{ color: "blue" }} />
       </IconButton>
+      </Tooltip>
+      
     </Typography>
   </Grid>
+  <Grid item xs={1}>
+  <Tooltip title="Delete user">
+    <IconButton
+      size="small"
+      onClick={(event) => {
+        event.stopPropagation();
+        delete_user(test.email);
+      }}
+      color="secondary"
+    >
+      <DeleteIcon />
+    </IconButton>
+  </Tooltip>
 </Grid>
 
-<Modal open={open} onClose={handleClose} aria-labelledby="modal-title" aria-describedby="modal-description">
+
+</Grid>
+
+<Modal open={open} onClose={handleClose} aria-labelledby="modal-title" aria-describedby="modal-description" onClick={(event) => { event.stopPropagation()}}>
   <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
     <Card sx={{ width: 400 }}>
       <CardContent>
@@ -302,14 +349,16 @@ const UserCard = ({ test }) => {
           variant="filled"
           fullWidth
           value={textInput}
-          onChange={handleTextInputChange}
+          onChange={(event) => {
+            handleTextInputChange(event);
+          }}
           sx={{ mb: 2 }}
         />
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Button variant="contained" onClick={handleClose} sx={{ borderRadius: '20px', py: 1, px: 3 }}>
+          <Button variant="contained" onClick={(event) => { event.stopPropagation(); handleClose(); }} sx={{ borderRadius: '20px', py: 1, px: 3 }}>
             Cancel
           </Button>
-          <Button variant="contained" color="primary" onClick={() => { edit_name(test.username); handleClose(); }} sx={{ borderRadius: '20px', py: 1, px: 3 }}>
+          <Button variant="contained" color="primary" onClick={(event) => {event.stopPropagation(); edit_name(test.username); handleClose(); }} sx={{ borderRadius: '20px', py: 1, px: 3 }}>
             Save
           </Button>
         </Box>
@@ -318,12 +367,12 @@ const UserCard = ({ test }) => {
   </Box>
 </Modal>
   
-  <Modal open={open2} onClose={handleClose2} aria-labelledby="modal-title" aria-describedby="modal-description">
+  <Modal open={open2} onClose={handleClose2} aria-labelledby="modal-title" aria-describedby="modal-description" onClick={(event) => { event.stopPropagation()}}>
   <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
     <Card sx={{ width: 400 }}>
       <CardContent>
         <Typography id="modal-title" variant="h5" component="h2" sx={{ mb: 2 }}>
-          Edit Username
+          Edit Email
         </Typography>
         <TextField
           id="standard-basic"
@@ -335,12 +384,13 @@ const UserCard = ({ test }) => {
           sx={{ mb: 2 }}
         />
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Button variant="contained" onClick={handleClose2} sx={{ borderRadius: '20px', py: 1, px: 3 }}>
+          <Button variant="contained" onClick={(event) => { event.stopPropagation(); handleClose2(); }} sx={{ borderRadius: '20px', py: 1, px: 3 }}>
             Cancel
           </Button>
-          <Button variant="contained" color="primary" onClick={() => { edit_email(test.email); handleClose2(); }} sx={{ borderRadius: '20px', py: 1, px: 3 }}>
-            Save
+          <Button variant="contained" color="primary" onClick={(event) => {  edit_email(test.email); handleClose2(); }} sx={{ borderRadius: '20px', py: 1, px: 3 }}>
+              Save
           </Button>
+
         </Box>
       </CardContent>
     </Card>

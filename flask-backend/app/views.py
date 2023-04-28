@@ -239,7 +239,7 @@ def forgot_password():
 
 
 @ app.route("/resetpassword", methods=['POST'])
-@jwt_required(fresh=True, locations=['query_string'])
+@jwt_required(locations=['query_string'])
 def reset_password():
     # get token from query params
     password = request.args.get('password')
@@ -399,7 +399,12 @@ def newTest():
     if request.method == 'POST':
 
         form = request.form
+        # print ( "**"*20)
+        # print ( form ) 
+        # print ( "**"*20)
 
+        model_type = form["model_type"]
+        # model_type = "ML"
         new_test = {}
         for key, value in form.items():
             new_test[key] = value
@@ -495,6 +500,7 @@ def newTest():
                 return jsonify({"message": "Test number already exists"}), SIGNALS['CONFLICT']
 
             db.tests.insert_one(new_test)
+            # db.tests.insert_one(new_test) 
             id = db.tests.find_one({"case_number": new_test['case_number']})
             # id: string of ObjectId
             id = str(id['_id'])
@@ -511,6 +517,7 @@ def newTest():
 def getTests():
     user = get_current_user()
     role = user['usertype']
+    print("role is ", role)
 
     try:
         tests = None
@@ -527,6 +534,10 @@ def getTests():
             # return jsonify({"test": json_util.dumps(test)}), SIGNALS['OK']
         elif role == 3:  # patient
             tests = db.tests.find({"email": user['email']}).sort('date', -1)
+            tests = [{"case_name": test['case_name'], "case_number": test['case_number'],
+                          "date": test['date'],
+                          "email": test['email'], "id": str(test['_id'])} for test in tests]
+            
             # test = db.tests.find(
             #     {"patient": user['email']}).sort([("date", -1)])
             # TODO: filter details for patient
@@ -551,7 +562,7 @@ def getTest(id):
 
     print(db.users.find_one({"email": user}))
     try:
-        if role in [0, 1, 2]:
+        if role in [0, 1, 2, 3]:
             test = db.tests.find_one({"_id": ObjectId(id)})
             # create pdf
             # pdf = create_pdf(test)
@@ -692,6 +703,23 @@ def getdoctorsedit2():
         return jsonify({"message": "Error in processing test"}), SIGNALS['CONFLICT']
 
 
+@app.route('/doctors/delete', methods=['POST'])
+@jwt_required()
+def delete_user():
+    inp = request.get_json()
+    email = inp["email"]
+    
+    try:
+        result = db.users.delete_one({'email': email})
+        if result.deleted_count == 0:
+            return jsonify({"message": "User not found"}), SIGNALS['NOT_FOUND']
+        else:
+            return jsonify({"message": "User deleted successfully"}), SIGNALS['OK']
+    except Exception as e:
+        print(type(e))
+        return jsonify({"message": "Error in deleting user"}), SIGNALS['CONFLICT']
+
+
 @app.route('/patients', methods=['GET'])
 @jwt_required()
 def getpatients():
@@ -722,6 +750,7 @@ def getpatients():
 
 @app.route('/user/<id>', methods=['GET'])
 @jwt_required()
+
 def getuser(id):
     print(id)
     # response = jsonify({"message": "Invalid test id"})
@@ -734,7 +763,10 @@ def getuser(id):
     try:
         test = None
         USER = None
-        if role == 1:
+        print("role")
+        print(role)
+        if  role == 1 or role==0:
+            print("super admin is here")
             USER = db.users.find_one({"_id": ObjectId(id)})
             print(USER)
             if USER['usertype'] == 2:
@@ -743,6 +775,9 @@ def getuser(id):
                           "date": test['date'],
                           "email": test['email'], "id": str(test['_id'])} for test in tests]
             elif USER['usertype'] == 3:
+                # console.log("here");
+                # print("here")
+            
                 tests = db.tests.find({'email': USER['email']})
                 tests = [{"case_name": test['case_name'], "case_number": test['case_number'],
                           "date": test['date'],
@@ -771,7 +806,7 @@ def getusername(id):
     try:
         test = None
         USER = None
-        if role == 1:
+        if role == 1 or role == 0:
             USER = db.users.find_one({"_id": ObjectId(id)})
             print(USER)
             return jsonify({"username": USER["username"]}), SIGNALS['OK']

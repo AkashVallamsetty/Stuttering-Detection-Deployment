@@ -29,7 +29,7 @@ export function Home() {
   useEffect(() => {
     if (!localStorage.getItem("user")) window.location.href = "/";
     const user = JSON.parse(localStorage.getItem("user"));
-    if (user.usertype !== 1) window.location.href = "/";
+    if (user.usertype !== 1 && user.usertype !== 0 ) window.location.href = "/";
     setUser(user);
     axios
       .get(`/api/username/${id}`, {

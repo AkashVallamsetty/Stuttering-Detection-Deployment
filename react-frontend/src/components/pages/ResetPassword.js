@@ -48,8 +48,11 @@ export default function ForgotPassword() {
     console.log(data);
     const password = data.password;
     // get query params
-    const query = new URLSearchParams(window.location.search);
-    const jwt = query.get("jwt");
+    // const query = new URLSearchParams(window.location.search);
+    // const jwt = query.get("jwt");
+    const jwt = localStorage.getItem("access_token");
+
+    
     // send jwt as query params
     axios
       .post("/api/resetpassword", null, {
@@ -74,8 +77,10 @@ export default function ForgotPassword() {
   };
 
   useEffect(() => {
-    const query = new URLSearchParams(window.location.search);
-    const jwt = query.get("jwt");
+    // const query = new URLSearchParams(window.location.search);
+    // const jwt = query.get("jwt");
+    const jwt = localStorage.getItem("access_token");
+
     if (jwt) {
       setJwt(jwt);
     }
@@ -93,6 +98,13 @@ export default function ForgotPassword() {
             alignItems: "center",
           }}
         >
+  <Typography variant="h4" align="center" gutterBottom style={{ fontFamily: "Arial", color: "#2e2e2e" }}>
+  Reset Password
+</Typography>
+
+  <Typography variant="subtitle1" align="center" color="textSecondary" paragraph>
+  Create A Strong and secure Password
+  </Typography>
           <ToastContainer
             position="bottom-center"
             autoClose={5000}
@@ -104,103 +116,130 @@ export default function ForgotPassword() {
             draggable
             pauseOnHover
           />
-          {/* <Typography component="h1" variant="h5">
-            Set new password
-          </Typography> */}
-          {jwt ? (
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <TextField
-                variant="outlined"
-                margin="normal"
-                fullWidth
-                label="New password"
-                type={showPassword ? "text" : "password"}
-                id="password"
-                {...register("password", {
-                  required: true,
-                  validate: {
-                    length: (value) =>
-                      value.length > 3 || "Must be at least 3 characters",
-                  },
-                })}
-                helperText={formState.errors.password?.message}
-                error={formState.errors.password ? true : false}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label="toggle password visibility"
-                        onClick={() => {
-                          setShowPassword(!showPassword);
-                        }}
-                      >
-                        {showPassword ? <Visibility /> : <VisibilityOff />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              <TextField
-                variant="outlined"
-                margin="normal"
-                fullWidth
-                label="Confirm new password"
-                type={showConfirmPassword ? "text" : "password"}
-                id="confirmPassword"
-                {...register("confirmPassword", {
-                  required: true,
-                  validate: {
-                    length: (value) =>
-                      value.length > 3 || "Must be at least 3 characters",
-                    confirmPassword: (value) => {
-                      const { password } = getValues();
+      {jwt ? (
+  <form onSubmit={handleSubmit(onSubmit)}>
+    <TextField
+      variant="outlined"
+      margin="normal"
+      fullWidth
+      label="New password"
+      type={showPassword ? "text" : "password"}
+      id="password"
+      {...register("password", {
+        required: true,
+        validate: {
+          length: (value) =>
+            value.length > 3 || "Must be at least 3 characters",
+        },
+      })}
+      helperText={formState.errors.password?.message}
+      error={formState.errors.password ? true : false}
+      InputProps={{
+        endAdornment: (
+          <InputAdornment position="end">
+            <IconButton
+              aria-label="toggle password visibility"
+              onClick={() => {
+                setShowPassword(!showPassword);
+              }}
+            >
+              {showPassword ? <Visibility /> : <VisibilityOff />}
+            </IconButton>
+          </InputAdornment>
+        ),
+        style: {
+          fontFamily: "Arial",
+          color: "#333"
+        }
+      }}
+      labelProps={{
+        style: {
+          fontFamily: "Arial",
+          color: "#777"
+        }
+      }}
+    />
+    <TextField
+      variant="outlined"
+      margin="normal"
+      fullWidth
+      label="Confirm new password"
+      type={showConfirmPassword ? "text" : "password"}
+      id="confirmPassword"
+      {...register("confirmPassword", {
+        required: true,
+        validate: {
+          length: (value) =>
+            value.length > 3 || "Must be at least 3 characters",
+          confirmPassword: (value) => {
+            const { password } = getValues();
 
-                      return value === password || "Passwords do not match";
-                    },
-                  },
-                })}
-                helperText={formState.errors.confirmPassword?.message}
-                error={formState.errors.confirmPassword ? true : false}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label="toggle password visibility"
-                        onClick={() => {
-                          setShowConfirmPassword(!showConfirmPassword);
-                        }}
-                      >
-                        {showConfirmPassword ? (
-                          <Visibility />
-                        ) : (
-                          <VisibilityOff />
-                        )}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                color="primary"
-                disabled={
-                  formState.isSubmitting || formState.isValidating
-                    ? true
-                    : false
-                }
-              >
-                {formState.isSubmitting || formState.isValidating
-                  ? "Loading..."
-                  : "Set new Password"}
-              </Button>
-            </form>
-          ) : (
-            <Typography component="h1" variant="h5">
-              Not authorized
-            </Typography>
-          )}
+            return value === password || "Passwords do not match";
+          },
+        },
+      })}
+      helperText={formState.errors.confirmPassword?.message}
+      error={formState.errors.confirmPassword ? true : false}
+      InputProps={{
+        endAdornment: (
+          <InputAdornment position="end">
+            <IconButton
+              aria-label="toggle password visibility"
+              onClick={() => {
+                setShowConfirmPassword(!showConfirmPassword);
+              }}
+            >
+              {showConfirmPassword ? (
+                <Visibility />
+              ) : (
+                <VisibilityOff />
+              )}
+            </IconButton>
+          </InputAdornment>
+        ),
+        style: {
+          fontFamily: "Arial",
+          color: "#333"
+        }
+      }}
+      labelProps={{
+        style: {
+          fontFamily: "Arial",
+          color: "#777"
+        }
+      }}
+    />
+    <Button
+      type="submit"
+      fullWidth
+      variant="contained"
+      color="primary"
+      disabled={
+        formState.isSubmitting || formState.isValidating
+          ? true
+          : false
+      }
+      style={{
+        fontFamily: "Arial",
+        marginTop: "20px",
+        backgroundColor: "#0077FF",
+        color: "#FFF",
+        "&:hover": {
+          backgroundColor: "#0066CC"
+        }
+      }}
+    >
+      {formState.isSubmitting || formState.isValidating
+        ? "Loading..."
+        : "Set new Password"}
+    </Button>
+  </form>
+) : (
+  <Typography component="h1" variant="h5" style={{ fontFamily: "Arial", color: "#333" }}>
+    Not authorized
+  </Typography>
+)}
+
         </Box>
       </Container>
     </ThemeProvider>

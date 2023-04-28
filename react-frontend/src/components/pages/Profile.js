@@ -22,9 +22,13 @@ import { Input, IconButton, InputAdornment } from "@mui/material";
 const theme = createTheme();
 
 export default function Profile() {
+
+  const userData = JSON.parse(localStorage.getItem("user"))
+  console.log(userData)
+
   return (
     <ThemeProvider theme={theme}>
-      <Container component="main" maxWidth="xs">
+      <Container maxWidth="sm">
         <CssBaseline />
         <Box
           sx={{
@@ -34,6 +38,27 @@ export default function Profile() {
             alignItems: "center",
           }}
         >
+          <Typography component="h1" variant="h4">
+            Your Profile
+          </Typography>
+          <Box sx={{ mt: 4 }}>
+            <Typography variant="h6" gutterBottom>
+              Username: {userData["username"]}
+            </Typography>
+            <Typography variant="h6" gutterBottom>
+              Email: {userData["email"]}
+            </Typography>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => {
+                window.location.href = "/resetpassword";
+              }}
+              sx={{ mt: 2 }}
+            >
+              Reset Password
+            </Button>
+          </Box>
           <ToastContainer
             position="bottom-center"
             autoClose={5000}
@@ -45,9 +70,6 @@ export default function Profile() {
             draggable
             pauseOnHover
           />
-          <Typography component="h1" variant="h5">
-            Profile
-          </Typography>
         </Box>
       </Container>
     </ThemeProvider>

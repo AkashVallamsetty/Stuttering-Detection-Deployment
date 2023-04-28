@@ -147,8 +147,7 @@ export default function ViewTest() {
                 : {test.email}
               </Typography>
             </Box>
-
-            <Box
+                <Box
               sx={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)" }}
             >
               <Typography variant="body1">
@@ -166,6 +165,7 @@ export default function ViewTest() {
               <Typography variant="body1"> : {test.model_type}</Typography>
             </Box>
             
+
             <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
               <Typography variant="body1">
                 <span style={{ fontWeight: 'bold' }}>Occupation</span>
@@ -183,7 +183,6 @@ export default function ViewTest() {
                 : {test.education}
               </Typography>
             </Box>
-            
 
             <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
               <Typography variant="body1">
