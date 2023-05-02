@@ -293,6 +293,7 @@ const UserCard = ({ test }) => {
       });
   }
   
+  const [openDialog, setOpenDialog] = useState(false);
 
   return ( 
     <Card sx={{marginTop:2,display:"flex",flexDirection:"row",alignItems:"center",padding:"1rem",boxShadow:"0px 4px 10px rgba(0, 0, 0, 0.5)",borderRadius:"10px"}} >
@@ -324,7 +325,12 @@ const UserCard = ({ test }) => {
       size="small"
       onClick={(event) => {
         event.stopPropagation();
-        delete_user(test.email);
+        const confirmDelete = window.confirm(
+          "Are you sure you want to delete this user? This action cannot be undone."
+        );
+        if (confirmDelete) {
+          delete_user(test.email);
+        }
       }}
       color="secondary"
     >
