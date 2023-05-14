@@ -95,9 +95,9 @@ export default function UserDetails({
             {...register("case_number", {
               required: true,
               onChange: handleChange("case_number"),
-              validate: {
-                isPositive: (number) => number > 0 || "Must be positive",
-              },
+              // validate: {
+              //   isPositive: (number) => number > 0 || "Must be positive",
+              // },
               value: values.case_number,
             })}
             helpertext={formState.errors.case_number?.message}
@@ -307,6 +307,7 @@ export default function UserDetails({
             {/* <MenuItem value=""> </MenuItem> */}
             <MenuItem value="ML">ML</MenuItem>
             <MenuItem value="SP">SP</MenuItem>
+            <MenuItem value="BOTH">BOTH</MenuItem>
           </Select>
         </Grid>
 

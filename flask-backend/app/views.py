@@ -403,113 +403,238 @@ def newTest():
         # print ( form ) 
         # print ( "**"*20)
 
-        model_type = form["model_type"]
-        # model_type = "ML"
-        new_test = {}
-        for key, value in form.items():
-            new_test[key] = value
-
-        new_test['questions'] = json.loads(new_test['questions'])
-        new_test['passages'] = json.loads(new_test['passages'])
-
-        # get values from form
-        # print("new_test", new_test)
-
-        # json parse
-
-        for question in new_test['questions']:
-            del question['src']
-            question['wav'] = convert_ogg_to_wav(question['source'])
-        for passage in new_test['passages']:
-            del passage['src']
-            passage['wav'] = convert_ogg_to_wav(passage['source'])
-
-        # TODO run ML model on new test
-        # dummy data
-        # print("new_test", new_test)
-
-        # send all the question['source'] and passage['source'] to the api located at ML_MODEL_URL
-        # get the results from the api and store them in the database
-        print("=="*20)
-        audios = []
-        i = 0
-        bounds = []
-
-        for question in new_test['questions']:
-            # print("question", question)
-            question['index'] = i
-            i += 1
-            audios.append(question['wav'])
-            bounds.append(str(question['bound']))
-
-        for passage in new_test['passages']:
-            passage['index'] = i
-            i += 1
-            audios.append(passage['wav'])
-            bounds.append(str(passage['bound']))
-
-        audioFiles = []
-        bounds = ",".join(bounds)
-
-        for i, audio in enumerate(audios):
-            audioFiles.append(
-                ('audios',
-                 ('audio_{}.wav'.format(i), audio, 'audio/wav')
-                 )
-            )
-
+        # model_type = form["model_type"]
         if ( form['model_type'] == 'SP') :
-            
+            spflag = True
+            mlflag = False
+        elif ( form['model_type'] == 'ML') :
+            mlflag = True
+            spflag = False
+
+        elif  (form['model_type'] == 'BOTH') :
+            mlflag = True
+            spflag = True
+
+        if ( spflag) :
+            new_test = {}
+            for key, value in form.items():
+                new_test[key] = value
+
+            new_test['questions'] = json.loads(new_test['questions'])
+            new_test['passages'] = json.loads(new_test['passages'])
+
+            # get values from form
+            # print("new_test", new_test)
+
+            # json parse
+
+            for question in new_test['questions']:
+                del question['src']
+                question['wav'] = convert_ogg_to_wav(question['source'])
+            for passage in new_test['passages']:
+                del passage['src']
+                passage['wav'] = convert_ogg_to_wav(passage['source'])
+
+            # TODO run ML model on new test
+            # dummy data
+            # print("new_test", new_test)
+
+            # send all the question['source'] and passage['source'] to the api located at ML_MODEL_URL
+            # get the results from the api and store them in the database
+            print("=="*20)
+            audios = []
+            i = 0
+            bounds = []
+
+            for question in new_test['questions']:
+                # print("question", question)
+                question['index'] = i
+                i += 1
+                audios.append(question['wav'])
+                bounds.append(str(question['bound']))
+
+            for passage in new_test['passages']:
+                passage['index'] = i
+                i += 1
+                audios.append(passage['wav'])
+                bounds.append(str(passage['bound']))
+
+            audioFiles = []
+            bounds = ",".join(bounds)
+
+            for i, audio in enumerate(audios):
+                audioFiles.append(
+                    ('audios',
+                    ('audio_{}.wav'.format(i), audio, 'audio/wav')
+                    )
+                )
+
+                
             output = requests.post(app.config['SP_MODEL_URL'],
-                               data={"bounds":bounds} , files=audioFiles)
-        else:
-            output = requests.post(app.config['ML_MODEL_URL'],
-                               data={"bounds":bounds} , files=audioFiles)
+                                data={"bounds":bounds} , files=audioFiles)
+        
+            if(output.status_code!=200):
+                return jsonify({"message": "Error in model service"}), SIGNALS['INTERNAL_SERVER_ERROR']
 
-        if(output.status_code!=200):
-            return jsonify({"message": "Error in model service"}), SIGNALS['INTERNAL_SERVER_ERROR']
+            print("output", output.text)
 
-        print("output", output.text)
+            output = json.loads(output.text)
+            print("=="*20)
+            # print(output)
+            for question in new_test['questions']:
+                question['score'] = output[question['index']]
+                del question['wav']
+                del question['index']
 
-        output = json.loads(output.text)
-        print("=="*20)
-        # print(output)
-        for question in new_test['questions']:
-            question['score'] = output[question['index']]
-            del question['wav']
-            del question['index']
+            for passage in new_test['passages']:
+                passage['score'] = output[passage['index']]
+                del passage['wav']
+                del passage['index']
 
-        for passage in new_test['passages']:
-            passage['score'] = output[passage['index']]
-            del passage['wav']
-            del passage['index']
+            # dummy total score
+            # new_test['total_score'] = int(np.sum([question['score'] for question in new_test['questions']]) + np.sum([
+            # passage['score'] for passage in new_test['passages']]))
 
-        # dummy total score
-        # new_test['total_score'] = int(np.sum([question['score'] for question in new_test['questions']]) + np.sum([
-        # passage['score'] for passage in new_test['passages']]))
+            try:
 
-        try:
-            new_test['doctor'] = get_jwt_identity()
-            new_test['date'] = datetime.now()
-            # check if already exists using case number
-            print("num", new_test['case_number'])
-            test_exists = db.tests.find_one(
-                {"case_number": new_test['case_number']})
-            print("exists", test_exists)
-            if test_exists:
-                return jsonify({"message": "Test number already exists"}), SIGNALS['CONFLICT']
+                new_test['doctor'] = get_jwt_identity()
+                new_test['date'] = datetime.now()
+                # check if already exists using case number
+                print("num", new_test['case_number'])
+                new_test['model_type'] = 'SP'
+                new_test['case_name'] = form['case_name']+'SP'
+                # test_exists = db.tests.find_one(
+                #     {"case_number": new_test['case_number']})
+                # print("exists", test_exists)
+                # if test_exists:
+                #     return jsonify({"message": "Test number already exists"}), SIGNALS['CONFLICT']
 
-            db.tests.insert_one(new_test)
-            # db.tests.insert_one(new_test) 
-            id = db.tests.find_one({"case_number": new_test['case_number']})
-            # id: string of ObjectId
-            id = str(id['_id'])
-            return jsonify({"message": "Test added successfully", "id": id}), SIGNALS['OK']
-        except Exception as e:
-            # print("Exception adding new test", new_test)
-            print("Error", e)
+                db.tests.insert_one(new_test)
+                # db.tests.insert_one(new_test) 
+                id = db.tests.find_one({"case_number": new_test['case_number']})
+                # id: string of ObjectId
+                id = str(id['_id'])
+                
+            except Exception as e:
+                # print("Exception adding new test", new_test)
+                print("Error", e)
 
-            return jsonify({"message": "Error in processing test"}), SIGNALS['INTERNAL_SERVER_ERROR']
+                return jsonify({"message": "Error in processing test"}), SIGNALS['INTERNAL_SERVER_ERROR']
+        
+            
+
+        if ( mlflag) :
+            new_test = {}
+            for key, value in form.items():
+                new_test[key] = value
+
+            new_test['questions'] = json.loads(new_test['questions'])
+            new_test['passages'] = json.loads(new_test['passages'])
+
+            # get values from form
+            # print("new_test", new_test)
+
+            # json parse
+
+            for question in new_test['questions']:
+                del question['src']
+                question['wav'] = convert_ogg_to_wav(question['source'])
+            for passage in new_test['passages']:
+                del passage['src']
+                passage['wav'] = convert_ogg_to_wav(passage['source'])
+
+            # TODO run ML model on new test
+            # dummy data
+            # print("new_test", new_test)
+
+            # send all the question['source'] and passage['source'] to the api located at ML_MODEL_URL
+            # get the results from the api and store them in the database
+            print("=="*20)
+            audios = []
+            i = 0
+            bounds = []
+
+            for question in new_test['questions']:
+                # print("question", question)
+                question['index'] = i
+                i += 1
+                audios.append(question['wav'])
+                bounds.append(str(question['bound']))
+
+            for passage in new_test['passages']:
+                passage['index'] = i
+                i += 1
+                audios.append(passage['wav'])
+                bounds.append(str(passage['bound']))
+
+            audioFiles = []
+            bounds = ",".join(bounds)
+
+            for i, audio in enumerate(audios):
+                audioFiles.append(
+                    ('audios',
+                    ('audio_{}.wav'.format(i), audio, 'audio/wav')
+                    )
+                )
+
+                
+            output = requests.post(app.config['SP_MODEL_URL'],
+                                data={"bounds":bounds} , files=audioFiles)
+        
+            if(output.status_code!=200):
+                return jsonify({"message": "Error in model service"}), SIGNALS['INTERNAL_SERVER_ERROR']
+
+            print("output", output.text)
+
+            output = json.loads(output.text)
+            print("=="*20)
+            # print(output)
+            for question in new_test['questions']:
+                question['score'] = output[question['index']]
+                del question['wav']
+                del question['index']
+
+            for passage in new_test['passages']:
+                passage['score'] = output[passage['index']]
+                del passage['wav']
+                del passage['index']
+
+            # dummy total score
+            # new_test['total_score'] = int(np.sum([question['score'] for question in new_test['questions']]) + np.sum([
+            # passage['score'] for passage in new_test['passages']]))
+
+            try:
+
+                new_test['doctor'] = get_jwt_identity()
+                new_test['date'] = datetime.now()
+                # check if already exists using case number
+                print("num", new_test['case_number'])
+                new_test['model_type'] = 'ML'
+                new_test['case_name'] = form['case_name']+'ML'
+                # test_exists = db.tests.find_one(
+                #     {"case_number": new_test['case_number']})
+                # print("exists", test_exists)
+                # if test_exists:
+                #     return jsonify({"message": "Test number already exists"}), SIGNALS['CONFLICT']
+
+                db.tests.insert_one(new_test)
+                # db.tests.insert_one(new_test) 
+                id = db.tests.find_one({"case_number": new_test['case_number']})
+                # id: string of ObjectId
+                id = str(id['_id'])
+                
+            except Exception as e:
+                # print("Exception adding new test", new_test)
+                print("Error", e)
+
+                return jsonify({"message": "Error in processing test"}), SIGNALS['INTERNAL_SERVER_ERROR']
+        
+            
+
+            
+        # model_type = "ML"
+            
+        return jsonify({"message": "Test added successfully", "id": id}), SIGNALS['OK']
 
 
 @app.route('/tests', methods=['GET'])
