@@ -9,6 +9,9 @@ Using docker based mongodb for ease of setup and deployment.
 docker-compose run --service-ports -d mongodb
 ```
 
+mongodb connection uri (present in the code as well):
+app.config['MONGO_URI'] = 'mongodb://flaskuser:flaskpassword@localhost:27017'
+
 ### Server
 
 ```bash
@@ -33,7 +36,7 @@ This is done only once. (Requires httpie package)
 Can also be done using postman.
 
 ```bash
-chmod +x add_data.sh && ./add_data.sh
+chmod +x add_data.sh && ./add_data.sh       # for linux
 xattr -d com.apple.quarantine add_data.sh   # for mac
 ```
 
